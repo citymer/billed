@@ -41,7 +41,7 @@ export default class Login {
     e.preventDefault()
     const user = {
       type: "Admin",
-      // remplacement de "employee" par "admin"
+      // remplacement de "employee" par "admin" , bug de connection résolu
       email: e.target.querySelector(`input[data-testid="admin-email-input"]`).value,
       password: e.target.querySelector(`input[data-testid="admin-password-input"]`).value,
       status: "connected"
