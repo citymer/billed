@@ -20,7 +20,7 @@ const row = (bill) => {
   }
 
 const rows = (data) => {
-  //ajout d'une fonction de trie pour reussir le test
+  //ajout d'une fonction de trie pour passer le test au vert
   let dates = []
   if (data) {
 
