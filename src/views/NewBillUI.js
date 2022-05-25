@@ -1,7 +1,7 @@
 import VerticalLayout from './VerticalLayout.js'
 
 export default () => {
-
+// ajout d'attribut dans l'input à la ligne 58 pour empêcher la saisie d'un document avec une extension différente de jpg,jpeg ou png 
   return (`
     <div class='layout'>
       ${VerticalLayout(120)}
