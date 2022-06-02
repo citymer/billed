@@ -5,7 +5,7 @@
 import {screen, waitFor} from '@testing-library/dom'
 import BillsUI from '../views/BillsUI.js'
 import { bills } from '../fixtures/bills.js'
-import { ROUTES_PATH} from '../constants/routes.js'
+import {ROUTES, ROUTES_PATH} from '../constants/routes.js'
 import {localStorageMock} from '../__mocks__/localStorage.js'
 import Bills from '../containers/Bills.js'
 import userEvent from '@testing-library/user-event'
@@ -70,6 +70,35 @@ describe("Given I am connected as an employee", () => {
         expect(handleClickIconEye).toHaveBeenCalled()
       })
       expect(modaleFile.classList.contains('show')).toBe(true)
+    })
+  })
+  // Vérifie si le formulaire de création de bills apparait
+  describe('When I click on Nouvelle note de frais', () => {
+    test('Then the form to create a new bill appear', async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          type: 'Employee',
+        })
+      )
+      const billsInit = new Bills({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
+      })
+      document.body.innerHTML = BillsUI({ data: bills })
+      const handleClickNewBill = jest.fn(() => billsInit.handleClickNewBill())
+      const btnNewBill = screen.getByTestId('btn-new-bill')
+      btnNewBill.addEventListener('click', handleClickNewBill)
+      userEvent.click(btnNewBill)
+      expect(handleClickNewBill).toHaveBeenCalled()
+      await waitFor(() => screen.getByTestId('form-new-bill'))
+      expect(screen.getByTestId('form-new-bill')).toBeTruthy()
     })
   })
 })
