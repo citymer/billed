@@ -7,6 +7,8 @@ import BillsUI from '../views/BillsUI.js'
 import { bills } from '../fixtures/bills.js'
 import { ROUTES_PATH} from '../constants/routes.js'
 import {localStorageMock} from '../__mocks__/localStorage.js'
+import Bills from '../containers/Bills.js'
+import userEvent from '@testing-library/user-event'
 
 import router from "../app/Router.js";
 
@@ -34,6 +36,40 @@ describe("Given I am connected as an employee", () => {
       const antiChrono = (a, b) => ((a < b) ? 1 : -1)
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted)
+    })
+  })
+   // Vérifie si la modale du justificatif apparait
+   describe('When I click on the eye of a bill', () => {
+    test('Then a modal must appear', async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          type: 'Employee',
+        })
+      )
+      const billsInit = new Bills({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
+      })
+      document.body.innerHTML = BillsUI({ data: bills })
+      const handleClickIconEye = jest.fn((icon) =>
+        billsInit.handleClickIconEye(icon)
+      )
+      const iconEye = screen.getAllByTestId('icon-eye')
+      const modaleFile = document.getElementById('modaleFile')
+      $.fn.modal = jest.fn(() => modaleFile.classList.add('show'))
+      iconEye.forEach((icon) => {
+        icon.addEventListener('click', handleClickIconEye(icon))
+        userEvent.click(icon)
+        expect(handleClickIconEye).toHaveBeenCalled()
+      })
+      expect(modaleFile.classList.contains('show')).toBe(true)
     })
   })
 })
