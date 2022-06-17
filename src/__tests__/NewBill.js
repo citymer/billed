@@ -12,6 +12,7 @@ import { ROUTES_PATH } from '../constants/routes.js'
 describe('Given I am connected as an employee', () => {
   describe('When I am on NewBill Page', () => {
     test('Then the newBill page should be rendered', () => {
+      // Teste l'affichage du formulaire
       const html = NewBillUI()
       document.body.innerHTML = html
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
