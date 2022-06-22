@@ -57,13 +57,16 @@ export default () => {
                   <div class="col-half">
                     <label for="file" class="bold-label">Justificatif</label>
                     <input id="file" required type="file" accept="image/png, image/jpeg, image/jpg" class="form-control blue-border" data-testid="file" />
+                    <p class="error-message message" data-testid="file-error-message">
+                    Le justificatif que vous fournissez doit être dans l'un de ses formats : png, jpeg ou jpg
+                    </p>
                   </div>
                 </div>
             </div>
             <div class="row">
               <div class="col-md-6">
                 <div class="col-half">
-                  <button type="submit" id='btn-send-bill' class="btn btn-primary">Envoyer</button>
+                  <button type="submit" id='btn-send-bill' data-testid="btn-send-bill" class="btn btn-primary">Envoyer</button>
                 </div>
               </div>
             </div>
