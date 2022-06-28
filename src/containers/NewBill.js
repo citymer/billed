@@ -20,6 +20,8 @@ export default class NewBill {
 
   handleChangeFile = (e) => {
     e.preventDefault()
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`)
+    const errorMessage = this.document.querySelector('.error-message')
     const file = this.document.querySelector(`input[data-testid="file"]`)
       .files[0]
     const filePath = e.target.value.split(/\\/g)
@@ -37,9 +39,9 @@ export default class NewBill {
       fileFormat === '.PNG'
     ) {
       //efface le border rouge
-      fileInput.classList.remove('red-border')
+      // fileInput.classList.remove('red-border')
       //active le display none du message d'erreur
-      errorMessage.classList.add('message')
+      // errorMessage.classList.add('message')
       const formData = new FormData()
 
       const email = JSON.parse(localStorage.getItem('user')).email
