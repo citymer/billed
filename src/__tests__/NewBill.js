@@ -14,26 +14,26 @@ import { bills } from '../fixtures/bills.js'
 import router from '../app/Router.js'
 
 describe('Given I am connected as an employee', () => {
-  // Vérifie si la page New est affiché
-  test('Then the newBill page should be rendered', () => {
-    const html = NewBillUI()
-    document.body.innerHTML = html
-    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-    window.localStorage.setItem(
-      'user',
-      JSON.stringify({
-        type: 'Employee',
-      })
-    )
-    const root = document.createElement('div')
-    root.setAttribute('id', 'root')
-    document.body.append(root)
-    router()
-    window.onNavigate(ROUTES_PATH.NewBill)
-    expect(screen.getAllByTestId('layout')).toBeTruthy()
-    expect(screen.getAllByText('Envoyer une note de frais')).toBeTruthy()
-  })
   describe('When I am on the new page', () => {
+    // Vérifie si la page New est affiché
+    test('Then the newBill page should be rendered', () => {
+      const html = NewBillUI()
+      document.body.innerHTML = html
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          type: 'Employee',
+        })
+      )
+      const root = document.createElement('div')
+      root.setAttribute('id', 'root')
+      document.body.append(root)
+      router()
+      window.onNavigate(ROUTES_PATH.NewBill)
+      expect(screen.getAllByTestId('layout')).toBeTruthy()
+      expect(screen.getAllByText('Envoyer une note de frais')).toBeTruthy()
+    })
     // Vérifie si le fichier est bien chargé
     test('I upload a jpg file in the input "justificatif"', () => {
       document.body.innerHTML = NewBillUI()
@@ -57,6 +57,7 @@ describe('Given I am connected as an employee', () => {
       expect(inputFile.files[0]).toStrictEqual(file)
       expect(inputFile.files[0].name).toBeDefined()
     })
+    // affiche un message d'erreur quand le fichier chargé n'est pas conforme
     test('I upload a invalid file in the input "justificatif" ', () => {
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem(
