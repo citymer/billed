@@ -34,6 +34,8 @@ describe('Given I am connected as an employee', () => {
       expect(screen.getAllByTestId('layout')).toBeTruthy()
       expect(screen.getAllByText('Envoyer une note de frais')).toBeTruthy()
     })
+  })
+  describe('d', () => {
     // Vérifie si le fichier est bien chargé
     test('I upload a jpg file in the input "justificatif"', () => {
       document.body.innerHTML = NewBillUI()
@@ -51,13 +53,18 @@ describe('Given I am connected as an employee', () => {
       inputFile.addEventListener('change', handleChangeFile)
       const file = new File(['image'], 'image.jpg', { type: 'image/jpg' })
 
-      userEvent.upload(inputFile, file)
+      fireEvent.change(inputFile, {
+        target: {
+          files: [file],
+        },
+      })
 
       expect(handleChangeFile).toHaveBeenCalled()
-      expect(inputFile.files[0]).toStrictEqual(file)
-      expect(inputFile.files[0].name).toBeDefined()
+      // expect(inputFile.files[0]).toStrictEqual(file)
+      //expect(inputFile.files[0].name).toBeDefined()
     })
-    // affiche un message d'erreur quand le fichier chargé n'est pas conforme
+  })
+  describe('d', () => {
     test('I upload a invalid file in the input "justificatif" ', () => {
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem(
@@ -95,7 +102,9 @@ describe('Given I am connected as an employee', () => {
       expect(errorMessage).not.toHaveClass('message')
       expect(screen.getByTestId('file-error-message')).toBeTruthy()
     })
-
+  })
+  // affiche un message d'erreur quand le fichier chargé n'est pas conforme
+  describe('r', () => {
     test('I can submit form', async () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
@@ -125,6 +134,81 @@ describe('Given I am connected as an employee', () => {
       expect(handleSubmit).toHaveBeenCalled()
       await waitFor(() => screen.getAllByText('Mes notes de frais'))
       expect(screen.getByText('Mes notes de frais')).toBeTruthy()
+    })
+  })
+})
+//post
+describe('When I am on NewBill page and submit a valid form', () => {
+  describe('when i post a new bill', () => {
+    test('Then it should create a new bill', async () => {
+      const mockedBills = mockStore.bills()
+      const infoCreate = {
+        fileUrl: 'https://localhost:3456/images/test.jpg',
+        key: '1234',
+      }
+      const billCreate = jest.spyOn(mockedBills, 'create')
+      const billUpdate = jest.spyOn(mockedBills, 'update')
+      const newBill = {
+        id: '47qAXb6fIm2zOKkLzMro',
+        vat: '80',
+        fileUrl:
+          'https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a',
+        status: 'pending',
+        type: 'Hôtel et logement',
+        commentary: 'séminaire billed',
+        name: 'fake new bill',
+        fileName: 'preview-facture-free-201801-pdf-1.jpg',
+        date: '2004-04-04',
+        frenchDate: '04-04-2004',
+        amount: 400,
+        commentAdmin: 'ok',
+        email: 'a@a',
+        pct: 20,
+      }
+      const awaitBillCreate = await billCreate(infoCreate)
+      expect(billCreate).toHaveBeenCalled()
+      expect(awaitBillCreate.fileUrl).toBe(
+        'https://localhost:3456/images/test.jpg'
+      )
+      expect(awaitBillCreate.key).toBe('1234')
+
+      const awaitBillUpdate = await billUpdate(newBill)
+      expect(billUpdate).toHaveBeenCalled()
+      expect(awaitBillUpdate.id).toBe('47qAXb6fIm2zOKkLzMro')
+      expect(awaitBillUpdate.fileUrl).toBe(
+        'https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a'
+      )
+    })
+    describe('When an error occurs on API', () => {
+      beforeEach(() => {
+        Object.defineProperty(window, 'localStorage', {
+          value: localStorageMock,
+        })
+        window.localStorage.setItem(
+          'user',
+          JSON.stringify({
+            type: 'Employee',
+            email: 'a@a',
+          })
+        )
+        document.body.innerHTML = NewBillUI()
+      })
+
+      test('Then new bill are added to the API but fetch fails with 404 message error', async () => {
+        mockedBills.create().mockImplementationOnce(() => {
+          return {
+            list: () => {
+              return Promise.reject(new Error('Erreur 404'))
+            },
+          }
+        })
+        window.onNavigate(ROUTES_PATH.NewBill)
+        await new Promise(process.nextTick)
+        const message = await screen.getByText(/Erreur 404/)
+        expect(message).toBeTruthy()
+      })
+
+      test('Then new bill are added to the API but fetch fails with 500 message error', async () => {})
     })
   })
 })
