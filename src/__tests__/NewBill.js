@@ -3,6 +3,7 @@
  */
 import { fireEvent, screen, waitFor } from '@testing-library/dom'
 import '@testing-library/jest-dom'
+import BillsUI from '../views/BillsUI.js'
 import NewBillUI from '../views/NewBillUI.js'
 import NewBill from '../containers/NewBill.js'
 import { localStorageMock } from '../__mocks__/localStorage'
@@ -12,6 +13,9 @@ import userEvent from '@testing-library/user-event'
 import mockStore from '../__mocks__/store'
 import { bills } from '../fixtures/bills.js'
 import router from '../app/Router.js'
+import Logout from '../containers/Logout'
+import { data } from 'jquery'
+import VerticalLayout from '../views/VerticalLayout.js'
 
 describe('Given I am connected as an employee', () => {
   describe('When I am on the new page', () => {
@@ -60,8 +64,8 @@ describe('Given I am connected as an employee', () => {
       })
 
       expect(handleChangeFile).toHaveBeenCalled()
-      // expect(inputFile.files[0]).toStrictEqual(file)
-      //expect(inputFile.files[0].name).toBeDefined()
+      expect(inputFile.files[0]).toStrictEqual(file)
+      expect(inputFile.files[0].name).toBeDefined()
     })
   })
   describe('d', () => {
@@ -106,6 +110,49 @@ describe('Given I am connected as an employee', () => {
   // affiche un message d'erreur quand le fichier chargé n'est pas conforme
   describe('r', () => {
     test('I can submit form', async () => {
+      document.body.innerHTML = NewBillUI({ data: bills })
+      const inputData = {
+        vat: '80',
+        type: 'Hôtel et logement',
+        commentary: 'séminaire billed',
+        name: 'encore',
+        fileName: '',
+        date: '2004-04-04',
+        amount: '400',
+        pct: '20',
+      }
+      const expenseType = screen.getByTestId('expense-type')
+      fireEvent.change(expenseType, { target: { value: inputData.type } })
+      expect(expenseType.value).toBe(inputData.type)
+
+      const expenseName = screen.getByTestId('expense-name')
+      fireEvent.change(expenseName, { target: { value: inputData.name } })
+      expect(expenseName.value).toBe(inputData.name)
+
+      const datapicker = screen.getByTestId('datepicker')
+      fireEvent.change(datapicker, { target: { value: inputData.date } })
+      expect(datapicker.value).toBe(inputData.date)
+
+      const amountInput = screen.getByTestId('amount')
+      fireEvent.change(amountInput, { target: { value: inputData.amount } })
+      expect(amountInput.value).toBe(inputData.amount)
+
+      const vat = screen.getByTestId('vat')
+      fireEvent.change(vat, { target: { value: inputData.vat } })
+      expect(vat.value).toBe(inputData.vat)
+
+      const pct = screen.getByTestId('pct')
+      fireEvent.change(pct, { target: { value: inputData.pct } })
+      expect(pct.value).toBe(inputData.pct)
+
+      const commentary = screen.getByTestId('commentary')
+      fireEvent.change(commentary, { target: { value: inputData.commentary } })
+      expect(commentary.value).toBe(inputData.commentary)
+
+      const inputFile = screen.getByTestId('file')
+      fireEvent.change(inputFile, { target: { value: inputData.fileName } })
+      expect(inputFile.value).toBe(inputData.fileName)
+
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
@@ -123,7 +170,6 @@ describe('Given I am connected as an employee', () => {
         store: null,
         localStorage: window.localStorage,
       })
-      document.body.innerHTML = NewBillUI({ data: bills })
       const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
 
       const formNewBill = screen.getByTestId('form-new-bill')
@@ -137,7 +183,8 @@ describe('Given I am connected as an employee', () => {
     })
   })
 })
-//post
+
+// POST
 describe('When I am on NewBill page and submit a valid form', () => {
   describe('when i post a new bill', () => {
     test('Then it should create a new bill', async () => {
@@ -148,6 +195,8 @@ describe('When I am on NewBill page and submit a valid form', () => {
       }
       const billCreate = jest.spyOn(mockedBills, 'create')
       const billUpdate = jest.spyOn(mockedBills, 'update')
+      const list = jest.fn(mockedBills, 'list')
+
       const newBill = {
         id: '47qAXb6fIm2zOKkLzMro',
         vat: '80',
@@ -167,17 +216,11 @@ describe('When I am on NewBill page and submit a valid form', () => {
       }
       const awaitBillCreate = await billCreate(infoCreate)
       expect(billCreate).toHaveBeenCalled()
-      expect(awaitBillCreate.fileUrl).toBe(
-        'https://localhost:3456/images/test.jpg'
-      )
-      expect(awaitBillCreate.key).toBe('1234')
 
-      const awaitBillUpdate = await billUpdate(newBill)
+      const awaitBillUpdate = await billUpdate(billCreate, newBill)
       expect(billUpdate).toHaveBeenCalled()
-      expect(awaitBillUpdate.id).toBe('47qAXb6fIm2zOKkLzMro')
-      expect(awaitBillUpdate.fileUrl).toBe(
-        'https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a'
-      )
+      expect(billUpdate).toHaveBeenCalledTimes(1)
+      expect(list.length).toBe(0)
     })
     describe('When an error occurs on API', () => {
       beforeEach(() => {
@@ -195,20 +238,30 @@ describe('When I am on NewBill page and submit a valid form', () => {
       })
 
       test('Then new bill are added to the API but fetch fails with 404 message error', async () => {
-        mockedBills.create().mockImplementationOnce(() => {
-          return {
-            list: () => {
-              return Promise.reject(new Error('Erreur 404'))
-            },
-          }
-        })
-        window.onNavigate(ROUTES_PATH.NewBill)
-        await new Promise(process.nextTick)
-        const message = await screen.getByText(/Erreur 404/)
+        const mockedBills = mockStore.bills()
+        const billUpdate = jest.spyOn(mockedBills, 'update')
+        billUpdate.mockImplementationOnce(() =>
+          Promise.reject(new Error('Erreur 404'))
+        )
+
+        const html = BillsUI({ error: 'Erreur 404' })
+        document.body.innerHTML = html
+        const message = screen.getByText(/Erreur 404/)
         expect(message).toBeTruthy()
       })
 
-      test('Then new bill are added to the API but fetch fails with 500 message error', async () => {})
+      test('Then new bill are added to the API but fetch fails with 500 message error', async () => {
+        const mockedBills = mockStore.bills()
+        const billUpdate = jest.spyOn(mockedBills, 'update')
+        billUpdate.mockImplementationOnce(() =>
+          Promise.reject(new Error('Erreur 505'))
+        )
+
+        const html = BillsUI({ error: 'Erreur 505' })
+        document.body.innerHTML = html
+        const message = screen.getByText(/Erreur 505/)
+        expect(message).toBeTruthy()
+      })
     })
   })
 })
