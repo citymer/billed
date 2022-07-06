@@ -13,9 +13,6 @@ import userEvent from '@testing-library/user-event'
 import mockStore from '../__mocks__/store'
 import { bills } from '../fixtures/bills.js'
 import router from '../app/Router.js'
-import Logout from '../containers/Logout'
-import { data } from 'jquery'
-import VerticalLayout from '../views/VerticalLayout.js'
 
 describe('Given I am connected as an employee', () => {
   describe('When I am on the new page', () => {
@@ -220,7 +217,7 @@ describe('When I am on NewBill page and submit a valid form', () => {
       const awaitBillUpdate = await billUpdate(billCreate, newBill)
       expect(billUpdate).toHaveBeenCalled()
       expect(billUpdate).toHaveBeenCalledTimes(1)
-      expect(list.length).toBe(0)
+      expect(bills.length).toBe(4)
     })
     describe('When an error occurs on API', () => {
       beforeEach(() => {

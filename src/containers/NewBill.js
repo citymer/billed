@@ -31,12 +31,10 @@ export default class NewBill {
     const fileFormat = fileName.substring(fileName.lastIndexOf('.'))
     // si le format est JPG,JPEG ou PNG
     if (
-      fileFormat === '.jpg' ||
-      fileFormat === '.jpeg' ||
-      fileFormat === '.png' ||
-      fileFormat === '.JPG' ||
-      fileFormat === '.JPEG' ||
-      fileFormat === '.PNG'
+      file !== undefined &&
+      (file.type === 'image/jpeg' ||
+        file.type === 'image/png' ||
+        file.type === 'image/jpg')
     ) {
       //efface le border rouge
       // fileInput.classList.remove('red-border')
