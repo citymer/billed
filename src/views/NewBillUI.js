@@ -57,7 +57,7 @@ export default () => {
                   <div class="col-half">
                     <label for="file" class="bold-label">Justificatif</label>
                     <input id="file" required type="file" accept="image/png, image/jpeg, image/jpg" class="form-control blue-border" data-testid="file" />
-                    <p class="error-message message" id="file-error-message" data-testid="file-error-message">
+                    <p class="message error-message" id="file-error-message" data-testid="file-error-message">
                     Le justificatif que vous fournissez doit être dans l'un de ses formats : png, jpeg ou jpg
                     </p>
                   </div>

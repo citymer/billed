@@ -17,19 +17,17 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
-
   handleChangeFile = (e) => {
     e.preventDefault()
     const fileInput = this.document.querySelector(`input[data-testid="file"]`)
-    const errorMessage = this.document.querySelector('.error-message')
+    const errorMessage = this.document.querySelector('#file-error-message')
     const file = this.document.querySelector(`input[data-testid="file"]`)
       .files[0]
+    console.log(file.type)
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length - 1]
 
-    // récupere le format
-    const fileFormat = fileName.substring(fileName.lastIndexOf('.'))
-    // si le format est JPG,JPEG ou PNG
+    //Si le format est JPG,JPEG ou PNG
     if (
       file !== undefined &&
       (file.type === 'image/jpeg' ||
@@ -39,9 +37,9 @@ export default class NewBill {
       //efface le border rouge
       // fileInput.classList.remove('red-border')
       //active le display none du message d'erreur
-      // errorMessage.classList.add('message')
-      const formData = new FormData()
+      errorMessage.classList.add('message')
 
+      const formData = new FormData()
       const email = JSON.parse(localStorage.getItem('user')).email
       formData.append('file', file)
       formData.append('email', email)
@@ -55,7 +53,7 @@ export default class NewBill {
           },
         })
         .then(({ fileUrl, key }) => {
-          //console.log(fileUrl)
+          console.log(fileUrl)
           this.billId = key
           this.fileUrl = fileUrl
           this.fileName = fileName
