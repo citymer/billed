@@ -36,6 +36,7 @@ describe('Given I am connected as an employee', () => {
       expect(screen.getAllByTestId('layout')).toBeTruthy()
       expect(screen.getAllByText('Envoyer une note de frais')).toBeTruthy()
     })
+    // verifie que "icon-mail" soit en surbrillance
     test('Then mail icon in vertical layout should be highlighted', async () => {
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem(
@@ -56,7 +57,7 @@ describe('Given I am connected as an employee', () => {
     })
   })
   describe('I upload a valid file in the input "justificatif"', () => {
-    // Vérifie si le fichier valide est bien chargé
+    // Vérifie que le fichier soit valide
     test('no error message', () => {
       document.body.innerHTML = NewBillUI()
       const onNavigate = (pathname) => {
@@ -111,6 +112,7 @@ describe('Given I am connected as an employee', () => {
     })
   })
   describe('I fill in all the fields of the form', () => {
+    // validation du formulaire une fois remplie
     test('I can submit form', async () => {
       document.body.innerHTML = NewBillUI({ data: bills })
       const inputData = {
